@@ -49,4 +49,12 @@ public class EmployeeRequest {
     public Integer getSalary() {
         return salary;
     }
+
+    public Long getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Long companyId) {
+        this.companyId = companyId;
+    }
 }

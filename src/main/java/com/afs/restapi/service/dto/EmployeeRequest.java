@@ -1,6 +1,9 @@
 package com.afs.restapi.service.dto;
 
+import com.afs.restapi.entity.Employee;
+
 public class EmployeeRequest {
+    private Long id;
     private String name;
     private int age;
     private String gender;
@@ -8,6 +11,23 @@ public class EmployeeRequest {
     private Long companyId;
 
     public EmployeeRequest() {
+    }
+
+    public EmployeeRequest(Employee employee) {
+        this.name = employee.getName();
+        this.age = employee.getAge();
+        this.gender = employee.getGender();
+        this.salary = employee.getSalary();
+        this.companyId = employee.getCompanyId();
+    }
+
+    public EmployeeRequest(Long id, String name, int age, String gender, int salary, Long companyId) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+        this.salary = salary;
+        this.companyId = companyId;
     }
 
     public EmployeeRequest(String name, int age, String gender, int salary, Long companyId) {
@@ -56,5 +76,13 @@ public class EmployeeRequest {
 
     public void setCompanyId(Long companyId) {
         this.companyId = companyId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

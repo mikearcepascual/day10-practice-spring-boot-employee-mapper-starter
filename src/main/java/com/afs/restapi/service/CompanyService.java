@@ -7,7 +7,9 @@ import com.afs.restapi.repository.CompanyRepository;
 import com.afs.restapi.repository.EmployeeRepository;
 import com.afs.restapi.service.dto.CompanyRequest;
 import com.afs.restapi.service.dto.CompanyResponse;
+import com.afs.restapi.service.dto.EmployeeResponse;
 import com.afs.restapi.service.mapper.CompanyMapper;
+import com.afs.restapi.service.mapper.EmployeeMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +30,9 @@ public class CompanyService {
         return companyRepository.findAll();
     }
 
-    public Company findById(Long id) {
-        return companyRepository.findById(id)
-                .orElseThrow(CompanyNotFoundException::new);
+    public CompanyResponse findById(Long id) {
+        Company company = companyRepository.findById(id).orElseThrow(CompanyNotFoundException::new);
+        return CompanyMapper.toResponse(company);
     }
 
     public List<Company> findByPage(Integer pageNumber, Integer pageSize) {
@@ -38,10 +40,10 @@ public class CompanyService {
                 .collect(Collectors.toList());
     }
 
-    public void update(Long id, Company company) {
+    public void update(Long id, CompanyRequest companyRequest) {
         Company toBeUpdatedCompany = companyRepository.findById(id)
                 .orElseThrow(CompanyNotFoundException::new);
-        toBeUpdatedCompany.setName(company.getName());
+        toBeUpdatedCompany.setName(companyRequest.getName());
         companyRepository.save(toBeUpdatedCompany);
     }
 
@@ -50,8 +52,10 @@ public class CompanyService {
         return CompanyMapper.toResponse(companyRepository.save(company));
     }
 
-    public List<Employee> findEmployeesByCompanyId(Long id) {
-        return employeeRepository.findAllByCompanyId(id);
+    public List<EmployeeResponse> findEmployeesByCompanyId(Long id) {
+        return employeeRepository.findAllByCompanyId(id).stream()
+                .map(EmployeeMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     public void delete(Long id) {

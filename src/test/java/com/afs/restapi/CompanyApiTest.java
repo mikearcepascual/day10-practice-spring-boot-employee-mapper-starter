@@ -56,26 +56,14 @@ class CompanyApiTest {
 
     @Test
     void should_find_company_by_id() throws Exception {
-        CompanyRequest companyRequest = new CompanyRequest(getCompanyOOCL());
-        Company company = CompanyMapper.toEntity(companyRequest);
-        CompanyResponse companyResponse = CompanyMapper.toResponse(companyRepository.save(company));
+        Company company = companyRepository.save(getCompanyOOCL());
+        employeeRepository.save(getEmployee(company));
 
-        EmployeeRequest employeeRequest = new EmployeeRequest(getEmployee(company));
-        Employee employee = EmployeeMapper.toEntity(employeeRequest);
-        EmployeeResponse employeeResponse = EmployeeMapper.toResponse(employeeRepository.save(employee));
-
-        companyResponse.setEmployeesCount(employeeRepository
-                .findAllByCompanyId(companyResponse.getId()).size());
-
-        mockMvc.perform(get("/companies/{id}", companyResponse.getId()))
+        mockMvc.perform(get("/companies/{id}", company.getId()))
                 .andExpect(MockMvcResultMatchers.status().is(200))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(companyResponse.getId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(companyResponse.getName()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.employees.length()").value(companyResponse.getEmployeesCount()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.employees[0].id").value(employeeResponse.getId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.employees[0].name").value(employeeResponse.getName()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.employees[0].age").value(employeeResponse.getAge()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.employees[0].gender").value(employeeResponse.getGender()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(company.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(company.getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.employeesCount").value(1));
     }
 
     @Test
@@ -151,7 +139,7 @@ class CompanyApiTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(employee.getName()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].age").value(employee.getAge()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].gender").value(employee.getGender()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].salary").value(employee.getSalary()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].salary").doesNotExist());
     }
 
     private static Employee getEmployee(Company company) {

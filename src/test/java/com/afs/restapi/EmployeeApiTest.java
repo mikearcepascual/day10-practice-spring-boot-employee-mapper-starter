@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -84,26 +85,23 @@ class EmployeeApiTest {
 
     @Test
     void should_update_employee_age_and_salary() throws Exception {
-        EmployeeRequest previousEmployeeRequest = new EmployeeRequest("Json", 22, "Male", 1000, null);
-        Employee previousEmployee = EmployeeMapper.toEntity(previousEmployeeRequest);
-        EmployeeResponse previousEmployeeResponse = EmployeeMapper.toResponse(employeeRepository.save(previousEmployee));
-
-        EmployeeRequest employeeUpdateRequest = new EmployeeRequest(previousEmployeeResponse.getId(), "lisi", 24, "Female", 2000, null);
+        Employee previousEmployee = employeeRepository.save(new Employee(null, "Json", 22, "Male", 1000));
+        EmployeeRequest updatedEmployeeRequest = new EmployeeRequest("lisi", 24, "Female", 2000, null);
         ObjectMapper objectMapper = new ObjectMapper();
-        String updatedEmployeeJson = objectMapper.writeValueAsString(employeeUpdateRequest);
-        mockMvc.perform(put("/employees/{id}", previousEmployeeResponse.getId())
+        String updatedEmployeeRequestJSON = objectMapper.writeValueAsString(updatedEmployeeRequest);
+        mockMvc.perform(put("/employees/{id}", previousEmployee.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(updatedEmployeeJson))
+                        .content(updatedEmployeeRequestJSON))
                 .andExpect(MockMvcResultMatchers.status().is(204));
 
-        Optional<Employee> optionalEmployee = employeeRepository.findById(previousEmployeeResponse.getId());
+        Optional<Employee> optionalEmployee = employeeRepository.findById(previousEmployee.getId());
         assertTrue(optionalEmployee.isPresent());
         Employee updatedEmployee = optionalEmployee.get();
-        Assertions.assertEquals(employeeUpdateRequest.getAge(), updatedEmployee.getAge());
-        Assertions.assertEquals(employeeUpdateRequest.getSalary(), updatedEmployee.getSalary());
-        Assertions.assertEquals(previousEmployeeResponse.getId(), updatedEmployee.getId());
-        Assertions.assertEquals(previousEmployeeResponse.getName(), updatedEmployee.getName());
-        Assertions.assertEquals(previousEmployeeResponse.getGender(), updatedEmployee.getGender());
+        assertEquals(updatedEmployeeRequest.getAge(), updatedEmployee.getAge());
+        assertEquals(updatedEmployeeRequest.getSalary(), updatedEmployee.getSalary());
+        assertEquals(previousEmployee.getId(), updatedEmployee.getId());
+        assertEquals(previousEmployee.getName(), updatedEmployee.getName());
+        assertEquals(previousEmployee.getGender(), updatedEmployee.getGender());
     }
 
     @Test
